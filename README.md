@@ -1,40 +1,42 @@
 # কৃতি বাংলা ফন্ট ম্যানেজার
 ## Kriti: Bangla Font Manager — Firefox Extension
 
-> Change any website's font to your favourite Bangla font, powered by the [Kriti CDN](https://kriti.app). 
-> Built specifically for Firefox Manifest V3 with advanced Content Security Policy (CSP) bypassing and 100% safe icon rendering!
+> Change any website's font to your favourite Bangla font, powered by the [Kriti CDN](https://kriti.app).
 
 ---
 
 ## ✨ Features
 
-- 🔍 **Unicode Bangla Fonts Only** — Seamlessly browse 200+ clean Unicode Bengali fonts, filtered directly from the Kriti API.
-- 🎯 **Interactive Element Picker** — Manually select and force fonts onto stubborn UI elements, just like the uBlock Origin element picker!
-- 🛡️ **100% Icon Safe (`@font-face` Aliasing)** — The extension uses an advanced Dynamic DOM/CSSOM Scanner to inject hidden `@font-face` aliases restricted to the Bengali Unicode Range (`U+0980-09FF`). This guarantees your FontAwesome and Material Icons will **never** break or turn into gibberish!
-- 🌐 **Strict Per-Site Memory** — Fonts are applied strictly per-domain. Setting a font on Facebook will not accidentally activate it on YouTube.
-- 🔓 **Strict CSP Bypass (Base64 Embedding)** — Major websites like Facebook and BBC block external fonts using strict Content Security Policies. Kriti intelligently downloads the `.woff2` font and embeds it as raw Base64 binary directly into the CSS, forcing the browser to render it!
-- 🎚️ **Font Size Slider** — Scale your Bengali fonts from 70% to 150%.
-- 🎨 **Premium Minimalist UI** — Dark glassmorphism design with a fast 2-column font preview grid.
-- 🏳️ **Bangladesh Flag Icon** — National pride right in your browser toolbar, featuring a dynamic active status badge.
+- 🔍 **Browse 200+ Bangla Fonts** — Searchable catalog from the Kriti font index.
+- 🖼️ **2-Column Font Previews** — SVG previews loaded lazily for easy browsing.
+- 🌐 **Strictly Per-Site Overrides** — Fonts are applied purely on an opt-in basis for the active tab's domain.
+- 🛡️ **100% Icon Safe** — Uses advanced `@font-face` aliasing. Custom fonts are applied *only* to the Bengali Unicode range, preserving FontAwesome, Material Icons, and other glyphs perfectly.
+- 🎚️ **Font Size Slider** — Scale fonts from 80% to 150%.
+- ⚡ **CDN-Powered & Cached** — Fonts are served from Cloudflare Edge and CSS is cached locally for 7 days.
+- 🎨 **Premium UI** — Dark glassmorphism design with micro-animations.
+- 🏳️ **Bangladesh Flag Icon** — National pride in your toolbar.
 
 ---
 
 ## 📁 Project Structure
 
-```
+```text
 kriti-font-manager/
 ├── manifest.json                 # Firefox WebExtension manifest (v3)
 ├── background/
-│   └── service-worker.js         # CSP Base64 encoding, 7-day caching, and MV3 async messaging
+│   └── service-worker.js         # Font index caching, CSS 7-day caching, and MV3 message handling
 ├── content/
-│   └── content-script.js         # Dynamic CSSOM font scanner, @font-face injection, Element Picker UI
+│   └── content-script.js         # Dynamic CSSOM scanner and @font-face alias injection
 ├── popup/
-│   ├── popup.html                # Minimalist 2-column extension UI
-│   ├── popup.js                  # Search, filter, and apply logic
+│   ├── popup.html                # Extension popup UI
+│   ├── popup.js                  # Auto-enabling popup logic
 │   └── popup.css                 # Premium dark theme styles
 └── icons/
     ├── icon.svg                  # Bangladesh flag vector
-    └── icon-16/32/48/128.png
+    ├── icon-16.png
+    ├── icon-32.png
+    ├── icon-48.png
+    └── icon-128.png
 ```
 
 ---
@@ -44,7 +46,7 @@ kriti-font-manager/
 1. Open Firefox and go to `about:debugging`
 2. Click **"This Firefox"** → **"Load Temporary Add-on"**
 3. Navigate to this folder and select `manifest.json`
-4. The extension will appear in your toolbar with the 🇧🇩 flag icon. The default font is set to **BCC Purno Black**.
+4. The extension will appear in your toolbar with the 🇧🇩 flag icon
 
 ---
 
@@ -54,22 +56,25 @@ This extension uses the [Kriti.app](https://kriti.app) services:
 
 | Resource | URL |
 |---|---|
-| Font Index | `https://kriti.app/metadata/search-index.json` |
+| Font Index | `https://kriti.app/metadata/index.json` |
 | Font CSS | `https://kriti.app/cdn/<slug>.css` |
 | Font Preview | `https://kriti.app/metadata/<slug>-preview.svg` |
 | API Docs | `https://kriti.app/api-docs` |
 
-All fonts are served via Cloudflare CDN with immutable caching and WOFF2 compression (60–70% smaller than TTF).
+All fonts are served via Cloudflare CDN with immutable caching and WOFF2 compression (60–70% smaller than TTF). 
 
 ---
 
-## 🏗️ How It Works (Advanced Architecture)
+## 🏗️ Architecture & How It Works
 
-1. **Background Worker** fetches the font index on install and caches it. It filters out non-Unicode fonts.
-2. When you pick a font, the background downloads the `.woff2` file from Kriti and converts it to a Base64 string to bypass strict CSPs. The final Base64 CSS is cached locally for 7 days.
-3. The **Content Script** injects into every page. It uses a **Dynamic Font Scanner** to probe the website's DOM and loaded web fonts (`document.fonts`).
-4. It dynamically generates `@font-face` aliases for every single font actively used on the page. These aliases are restricted using `unicode-range: U+0980-09FF`, ensuring English text and Icons are ignored, and only Bengali characters are replaced!
-5. **Element Picker:** A custom interactive overlay allows users to generate robust CSS selectors by clicking elements on the page. These selectors are saved and forcefully injected with `!important` to handle edge cases.
+The extension is built for Firefox Manifest V3 and employs several robust best-practices to ensure high performance and flawless web compatibility:
+
+1. **Background Caching**: The `service-worker.js` fetches the font catalog (`index.json`) and caches it for 1 hour. When a font is applied, its CSS is fetched from the Kriti CDN, relative URLs are dynamically rewritten to absolute paths, and the CSS text is cached in `browser.storage.local` for 7 days to bypass strict website CSPs.
+2. **Opt-In Per-Site Storage**: When you click "Apply" in the popup, the font configuration is saved to `siteOverrides` tied strictly to the current domain. The master switch is auto-enabled if it was off.
+3. **Dynamic CSSOM Font Scanner**: When `content-script.js` loads, it doesn't just blindly override the `font-family` property (which destroys icon fonts). Instead, it scans `document.fonts` and runs a targeted DOM sample to extract *every single font* currently being used by the website.
+4. **`@font-face` Aliasing (Icon Protection)**: The content script generates invisible `@font-face` aliases for every font discovered on the page, pointing them to the Kriti font, but **strictly restricted to the Bengali Unicode Range (`U+0980-09FF`)**. This allows standard English text and icon libraries to fall through to the site's native fonts effortlessly.
+5. **Multi-Lifecycle Re-Injection**: To combat complex Single Page Applications (SPAs) and asynchronously loaded Web Fonts, the font scanner re-runs and overwrites styles at `document_start`, `DOMContentLoaded`, `window.load`, and `document.fonts.ready`.
+6. **Wake-up Retry Loops**: Implements retry loops for messaging the Firefox background Event Page, seamlessly handling suspension wake-up delays on newly opened tabs.
 
 ---
 
