@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>Kriti: Bangla Font Manager</title>
+  <!-- BCC Purno Black from Kriti CDN -->
+  <link href="https://kriti.app/cdn/bb5d26a6.css" rel="stylesheet" crossorigin>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <!-- ── HEADER ─────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="brand">
+      <img src="../icons/icon-32.png" alt="" class="brand-logo" />
+      <div>
+        <div class="brand-title">কৃতি ফন্ট</div>
+        <div class="brand-host" id="currentSiteLabel">—</div>
+      </div>
+    </div>
+    <label class="toggle" title="Enable / Disable">
+      <input type="checkbox" id="masterToggle" checked>
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+    </label>
+  </header>
+
+  <!-- ── ACTIVE FONT BAR ────────────────────────────────────── -->
+  <div class="active-bar" id="activeBar">
+    <span class="active-label">সক্রিয়:</span>
+    <span class="active-name" id="activeFontName">BCC Purno Regular</span>
+    <button class="active-clear" id="clearFontBtn" title="ফন্ট সরান">✕</button>
+  </div>
+
+  <!-- ── TOOLBAR ────────────────────────────────────────────── -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="খুঁজুন…" autocomplete="off" spellcheck="false" />
+      <button class="search-clear" id="searchClearBtn">✕</button>
+    </div>
+  </div>
+
+  <!-- ── FONT COUNT ─────────────────────────────────────────── -->
+  <div class="font-count" id="fontCount"></div>
+
+  <!-- ── FONT GRID ──────────────────────────────────────────── -->
+  <div class="font-grid" id="fontGrid">
+    <div class="grid-loading" id="loadingState">
+      <div class="spinner"></div>
+      <span>ফন্ট লোড হচ্ছে…</span>
+    </div>
+  </div>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────── -->
+  <div class="footer">
+    <div class="footer-row">
+      <span class="footer-label">আকার</span>
+      <input type="range" id="fontSizeSlider" min="80" max="150" value="100" step="5" class="slider" />
+      <span class="size-val" id="fontSizeValue">100%</span>
+    </div>
+    <div class="footer-row">
+      <span class="footer-label">প্রয়োগ</span>
+      <div class="scope-pills" id="scopePills">
+        <button class="sp active" data-scope="all">সব টেক্সট</button>
+        <button class="sp" data-scope="bengali">বাংলা শুধু</button>
+      </div>
+      <button class="btn-reset" id="resetAllBtn" title="রিসেট">↺</button>
+    </div>
+    <!-- Per-site overrides -->
+    <div class="site-overrides" id="siteOverrides" style="display:none">
+      <div class="so-title">সাইট-নির্দিষ্ট ফন্ট</div>
+      <div id="siteOverridesList"></div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
