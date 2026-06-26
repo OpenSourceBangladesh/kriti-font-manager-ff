@@ -172,15 +172,35 @@ function renderGrid() {
       btnText = '✓ প্রয়োগিত';
     }
 
-    card.innerHTML = `
-      <div class="card-preview">
-        <div class="card-preview-text" data-slug="${font.s}" data-family="${familyName}">${PREVIEW_TEXT}</div>
-      </div>
-      <div class="card-footer">
-        <div class="card-name" title="${font.n}">${font.n}</div>
-        <button class="${btnClass}" data-action="toggle" data-slug="${font.s}">${btnText}</button>
-      </div>
-    `;
+    const previewDiv = document.createElement('div');
+    previewDiv.className = 'card-preview';
+    
+    const previewText = document.createElement('div');
+    previewText.className = 'card-preview-text';
+    previewText.dataset.slug = font.s;
+    previewText.dataset.family = familyName;
+    previewText.textContent = PREVIEW_TEXT;
+    previewDiv.appendChild(previewText);
+
+    const footerDiv = document.createElement('div');
+    footerDiv.className = 'card-footer';
+
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'card-name';
+    nameDiv.title = font.n;
+    nameDiv.textContent = font.n;
+
+    const btn = document.createElement('button');
+    btn.className = btnClass;
+    btn.dataset.action = 'toggle';
+    btn.dataset.slug = font.s;
+    btn.textContent = btnText;
+
+    footerDiv.appendChild(nameDiv);
+    footerDiv.appendChild(btn);
+
+    card.appendChild(previewDiv);
+    card.appendChild(footerDiv);
 
     cardGrid.appendChild(card);
   });
@@ -209,11 +229,24 @@ function renderSiteOverrides() {
     const fd = overrides[host];
     const el = document.createElement('div');
     el.className = 'so-item';
-    el.innerHTML = `
-      <div class="so-host" title="${host}">${host}</div>
-      <div class="so-font">${fd.name}</div>
-      <button class="so-remove" data-host="${host}" title="সরান">✕</button>
-    `;
+    const hostDiv = document.createElement('div');
+    hostDiv.className = 'so-host';
+    hostDiv.title = host;
+    hostDiv.textContent = host;
+
+    const fontDiv = document.createElement('div');
+    fontDiv.className = 'so-font';
+    fontDiv.textContent = fd.name;
+
+    const btn = document.createElement('button');
+    btn.className = 'so-remove';
+    btn.dataset.host = host;
+    btn.title = 'সরান';
+    btn.textContent = '✕';
+
+    el.appendChild(hostDiv);
+    el.appendChild(fontDiv);
+    el.appendChild(btn);
     list.appendChild(el);
   });
 }
